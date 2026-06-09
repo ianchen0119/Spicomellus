@@ -3,15 +3,16 @@
 ---
 services:
   backend:
-    image: ghcr.io/hedgedoc/hedgedoc/backend:develop
+    image: ghcr.io/ianchen0119/spicomellus/backend:develop
     volumes:
       - ./.env:/usr/src/app/backend/.env
       - hedgedoc_uploads:/usr/src/app/backend/uploads
 
   frontend:
-    image: ghcr.io/hedgedoc/hedgedoc/frontend:develop
+    image: ghcr.io/ianchen0119/spicomellus/frontend:develop
     environment:
       HD_BASE_URL: "${HD_BASE_URL}"
+      HD_INTERNAL_API_URL: "http://backend:3000/"
 
   db:
     image: postgres:15
@@ -26,7 +27,7 @@ services:
     environment:
       HD_BASE_URL: "${HD_BASE_URL}"
     ports:
-      - "80:80"
+      - "8081:80"
       - "443:443"
       - "443:443/udp"
     volumes:

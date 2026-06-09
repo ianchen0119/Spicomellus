@@ -4,17 +4,18 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 #
 
-{$HD_BASE_URL}
 
-log {
-	output stdout
-	level WARN
-	format console
+:80 {
+	log {
+		output stdout
+		level WARN
+		format console
+	}
+
+	reverse_proxy /realtime http://backend:3000
+	reverse_proxy /api/* http://backend:3000
+	reverse_proxy /public/* http://backend:3000
+	reverse_proxy /uploads/* http://backend:3000
+	reverse_proxy /apidoc/* http://backend:3000
+	reverse_proxy /* http://frontend:3001
 }
-
-reverse_proxy /realtime http://backend:3000
-reverse_proxy /api/* http://backend:3000
-reverse_proxy /public/* http://backend:3000
-reverse_proxy /uploads/* http://backend:3000
-reverse_proxy /apidoc/* http://backend:3000
-reverse_proxy /* http://frontend:3001
