@@ -3126,6 +3126,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@hedgedoc/spicomellus-mcp@workspace:mcp":
+  version: 0.0.0-use.local
+  resolution: "@hedgedoc/spicomellus-mcp@workspace:mcp"
+  languageName: unknown
+  linkType: soft
+
 "@hpcc-js/wasm@npm:^2.20.0":
   version: 2.20.0
   resolution: "@hpcc-js/wasm@npm:2.20.0"

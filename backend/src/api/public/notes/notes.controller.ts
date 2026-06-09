@@ -5,6 +5,7 @@
  */
 import { PermissionLevel } from '@hedgedoc/commons';
 import {
+  BadRequestException,
   MediaUploadSchema,
   NoteMetadataSchema,
   NotePermissionsSchema,
@@ -20,12 +21,14 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { MediaUploadDto } from '../../../dtos/media-upload.dto';
+import { CreateNoteLinkDto } from '../../../dtos/create-note-link.dto';
 import { NoteMetadataDto } from '../../../dtos/note-metadata.dto';
 import { NotePermissionsDto } from '../../../dtos/note-permissions.dto';
 import { NoteDto } from '../../../dtos/note.dto';
@@ -33,12 +36,14 @@ import { NoteMediaDeletionDto } from '../../../dtos/note.media-deletion.dto';
 import { RevisionMetadataDto } from '../../../dtos/revision-metadata.dto';
 import { RevisionDto } from '../../../dtos/revision.dto';
 import { GroupsService } from '../../../groups/groups.service';
+import { AliasService } from '../../../alias/alias.service';
 import { ConsoleLoggerService } from '../../../logger/console-logger.service';
 import { MediaService } from '../../../media/media.service';
 import { NoteService } from '../../../notes/note.service';
 import { PermissionService } from '../../../permissions/permission.service';
 import { PermissionsGuard } from '../../../permissions/permissions.guard';
 import { RequirePermission } from '../../../permissions/require-permission.decorator';
+import { NoteLinkService } from '../../../revisions/note-link.service';
 import { RevisionsService } from '../../../revisions/revisions.service';
 import { UsersService } from '../../../users/users.service';
 import { MarkdownBody } from '../../utils/decorators/markdown-body.decorator';
@@ -58,9 +63,11 @@ export class NotesController {
     private readonly logger: ConsoleLoggerService,
     private noteService: NoteService,
     private userService: UsersService,
+    private aliasService: AliasService,
     private groupService: GroupsService,
     private revisionsService: RevisionsService,
     private mediaService: MediaService,
+    private noteLinkService: NoteLinkService,
     private permissionService: PermissionService,
   ) {
     this.logger.setContext(NotesController.name);
@@ -381,5 +388,85 @@ export class NotesController {
   async getNotesMedia(@RequestNoteId() noteId: number): Promise<MediaUploadDto[]> {
     const mediaUuids = await this.mediaService.getMediaUploadUuidsByNoteId(noteId);
     return await this.mediaService.getMediaUploadDtosByUuids(mediaUuids);
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.READ)
+  @Get(':noteAlias/links')
+  async getNoteLinks(@RequestNoteId() noteId: number) {
+    return await this.noteLinkService.getNoteLinks(noteId);
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.READ)
+  @Get(':noteAlias/links/:cardId/outgoing')
+  async getOutgoingLinks(@RequestNoteId() noteId: number, @Param('cardId') cardId: string) {
+    return await this.noteLinkService.getOutgoingLinks(noteId, cardId);
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.READ)
+  @Get(':noteAlias/links/:cardId/backlinks')
+  async getBacklinks(@RequestNoteId() noteId: number, @Param('cardId') cardId: string) {
+    return await this.noteLinkService.getBacklinks(noteId, cardId);
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.READ)
+  @Get(':noteAlias/cross-backlinks')
+  async getCrossNoteBacklinks(@Param('noteAlias') noteAlias: string) {
+    return await this.noteLinkService.getCrossNoteBacklinks(noteAlias);
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.READ)
+  @Get(':noteAlias/cross-backlinks/aliases')
+  async getCrossNoteBacklinkAliases(@Param('noteAlias') noteAlias: string) {
+    const backlinks = await this.noteLinkService.getCrossNoteBacklinks(noteAlias);
+    const aliases = await Promise.all(
+      backlinks.map(async (backlink) => {
+        return await this.aliasService.getPrimaryAliasByNoteId(backlink.noteId);
+      }),
+    );
+    return Array.from(new Set(aliases));
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.READ)
+  @Get(':noteAlias/graph')
+  async getNoteGraph(
+    @RequestNoteId() noteId: number,
+    @Query('focusOn') focusOn: string | null,
+    @Query('depth') depth = '1',
+  ) {
+    const parsedDepth = Number.parseInt(depth, 10);
+    if (Number.isNaN(parsedDepth) || parsedDepth < 1 || parsedDepth > 3) {
+      throw new BadRequestException('depth must be an integer between 1 and 3');
+    }
+    return await this.noteService.getNoteGraph(noteId, focusOn, parsedDepth);
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.WRITE)
+  @Post(':noteAlias/note-links')
+  async createNoteLink(
+    @RequestNoteId() noteId: number,
+    @Param('noteAlias') noteAlias: string,
+    @Body() body: CreateNoteLinkDto,
+  ): Promise<void> {
+    if (noteAlias === body.targetAlias) {
+      throw new BadRequestException('A note cannot link to itself');
+    }
+    await this.noteLinkService.createNoteToNoteLink(noteId, noteAlias, body.targetAlias, body.edgeType);
+  }
+
+  @UseInterceptors(GetNoteIdInterceptor)
+  @RequirePermission(PermissionLevel.WRITE)
+  @Delete(':noteAlias/note-links/:targetAlias')
+  async deleteNoteLink(
+    @RequestNoteId() noteId: number,
+    @Param('targetAlias') targetAlias: string,
+  ): Promise<void> {
+    await this.noteLinkService.deleteNoteToNoteLink(noteId, targetAlias);
   }
 }

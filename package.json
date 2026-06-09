@@ -7,6 +7,7 @@
     "frontend",
     "commons",
     "database",
+    "mcp",
     "dev-reverse-proxy",
     "docs",
     "html-to-react",
