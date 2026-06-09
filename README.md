@@ -87,28 +87,24 @@ This repository includes a local MCP server in `mcp/` for agent workflows.
 yarn install
 ```
 
-2. Build the MCP package once:
-
-```bash
-yarn workspace @hedgedoc/spicomellus-mcp build
-```
-
-3. Add a server entry to your VS Code MCP config (`~/.vscode-server/data/User/mcp.json` on remote Linux):
+2. Add a server entry to your VS Code MCP config (`~/.vscode-server/data/User/mcp.json` on remote Linux):
 
 ```jsonc
 {
 	"servers": {
 		"Spicomellus": {
-			"type": "stdio",
-			"command": "/usr/bin/node",
-			"args": [
-				"/absolute/path/to/hedgedoc/mcp/server.js"
-			],
-			"env": {
-				"HEDGEDOC_BASE_URL": "http://127.0.0.1:8081",
-				"HEDGEDOC_API_TOKEN": "<your-token>",
-				"HEDGEDOC_MCP_OUTPUT_MODE": "ndjson"
-			}
+            "type": "stdio",
+            "command": "/usr/bin/node",
+            "args": [
+                "/home/ianchen0119/Spicomellus/mcp/server.js"
+            ],
+            "env": {
+                "HEDGEDOC_USERNAME": "agent",
+                "HEDGEDOC_PASSWORD": "agentCopilot",
+                "HEDGEDOC_BASE_URL": "http://127.0.0.1:8081",
+                "HEDGEDOC_MCP_DEBUG": "1",
+                "HEDGEDOC_MCP_OUTPUT_MODE": "ndjson"
+            }
 		}
 	}
 }
