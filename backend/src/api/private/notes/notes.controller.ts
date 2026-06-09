@@ -15,6 +15,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -43,6 +44,8 @@ import { NoteService } from '../../../notes/note.service';
 import { PermissionService } from '../../../permissions/permission.service';
 import { PermissionsGuard } from '../../../permissions/permissions.guard';
 import { RequirePermission } from '../../../permissions/require-permission.decorator';
+import { NoteLinkService } from '../../../revisions/note-link.service';
+import { CreateNoteLinkDto } from '../../../dtos/create-note-link.dto';
 import { convertEditabilityToPermissionLevel } from '../../../permissions/utils/convert-editability-to-permission-level';
 import { RevisionsService } from '../../../revisions/revisions.service';
 import { UsersService } from '../../../users/users.service';
@@ -63,6 +66,7 @@ export class NotesController {
     private userService: UsersService,
     private mediaService: MediaService,
     private revisionsService: RevisionsService,
+    private noteLinkService: NoteLinkService,
     private permissionService: PermissionService,
     private groupService: GroupsService,
     @Inject(noteConfiguration.KEY)
@@ -91,6 +95,80 @@ export class NotesController {
   async getNotesMedia(@RequestNoteId() noteId: number): Promise<MediaUploadDto[]> {
     const media = await this.mediaService.getMediaUploadUuidsByNoteId(noteId);
     return await this.mediaService.getMediaUploadDtosByUuids(media);
+  }
+
+  @Get(':noteAlias/links')
+  @OpenApi(200)
+  @RequirePermission(PermissionLevel.READ)
+  @UseInterceptors(GetNoteIdInterceptor)
+  async getNoteLinks(@RequestNoteId() noteId: number) {
+    return await this.noteLinkService.getNoteLinks(noteId)
+  }
+
+  @Get(':noteAlias/links/:cardId/outgoing')
+  @OpenApi(200)
+  @RequirePermission(PermissionLevel.READ)
+  @UseInterceptors(GetNoteIdInterceptor)
+  async getOutgoingLinks(@RequestNoteId() noteId: number, @Param('cardId') cardId: string) {
+    return await this.noteLinkService.getOutgoingLinks(noteId, cardId)
+  }
+
+  @Get(':noteAlias/links/:cardId/backlinks')
+  @OpenApi(200)
+  @RequirePermission(PermissionLevel.READ)
+  @UseInterceptors(GetNoteIdInterceptor)
+  async getBacklinks(@RequestNoteId() noteId: number, @Param('cardId') cardId: string) {
+    return await this.noteLinkService.getBacklinks(noteId, cardId)
+  }
+
+  @Post(':noteAlias/note-links')
+  @OpenApi(201)
+  @RequirePermission(PermissionLevel.WRITE)
+  @UseInterceptors(GetNoteIdInterceptor)
+  async createNoteLink(
+    @RequestNoteId() noteId: number,
+    @Param('noteAlias') noteAlias: string,
+    @Body() body: CreateNoteLinkDto,
+  ): Promise<void> {
+    if (noteAlias === body.targetAlias) {
+      throw new BadRequestException('A note cannot link to itself')
+    }
+    await this.noteLinkService.createNoteToNoteLink(noteId, noteAlias, body.targetAlias, body.edgeType)
+  }
+
+  @Delete(':noteAlias/note-links/:targetAlias')
+  @OpenApi(204)
+  @RequirePermission(PermissionLevel.WRITE)
+  @UseInterceptors(GetNoteIdInterceptor)
+  async deleteNoteLink(
+    @RequestNoteId() noteId: number,
+    @Param('targetAlias') targetAlias: string,
+  ): Promise<void> {
+    await this.noteLinkService.deleteNoteToNoteLink(noteId, targetAlias)
+  }
+
+  @Get(':noteAlias/cross-backlinks')
+  @OpenApi(200)
+  @RequirePermission(PermissionLevel.READ)
+  @UseInterceptors(GetNoteIdInterceptor)
+  async getCrossNoteBacklinks(@Param('noteAlias') noteAlias: string) {
+    return await this.noteLinkService.getCrossNoteBacklinks(noteAlias)
+  }
+
+  @Get(':noteAlias/graph')
+  @OpenApi(200)
+  @RequirePermission(PermissionLevel.READ)
+  @UseInterceptors(GetNoteIdInterceptor)
+  async getNoteGraph(
+    @RequestNoteId() noteId: number,
+    @Query('focusOn') focusOn: string | null,
+    @Query('depth') depth = '1',
+  ) {
+    const parsedDepth = Number.parseInt(depth, 10)
+    if (Number.isNaN(parsedDepth) || parsedDepth < 1 || parsedDepth > 3) {
+      throw new BadRequestException('depth must be an integer between 1 and 3')
+    }
+    return await this.noteService.getNoteGraph(noteId, focusOn, parsedDepth)
   }
 
   @Post()

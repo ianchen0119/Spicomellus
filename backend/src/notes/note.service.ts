@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
-import { PermissionLevel } from '@hedgedoc/commons';
+import { CardGraphInterface, PermissionLevel } from '@hedgedoc/commons';
 import {
   FieldNameAlias,
   FieldNameNote,
@@ -15,7 +15,7 @@ import {
   TableVisitedNote,
 } from '@hedgedoc/database';
 import { SpecialGroup } from '@hedgedoc/database';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Optional } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Knex } from 'knex';
 import { InjectConnection } from 'nest-knexjs';
@@ -34,6 +34,7 @@ import { NoteEvent, NoteEventMap } from '../events';
 import { GroupsService } from '../groups/groups.service';
 import { ConsoleLoggerService } from '../logger/console-logger.service';
 import { PermissionService } from '../permissions/permission.service';
+import { NoteLinkService } from '../revisions/note-link.service';
 import { RealtimeNoteStore } from '../realtime/realtime-note/realtime-note-store';
 import { RevisionsService } from '../revisions/revisions.service';
 import {
@@ -58,6 +59,9 @@ export class NoteService {
     private aliasService: AliasService,
     @Inject(forwardRef(() => PermissionService))
     private permissionService: PermissionService,
+    @Optional()
+    @Inject(forwardRef(() => NoteLinkService))
+    private noteLinkService: NoteLinkService | undefined,
     private realtimeNoteStore: RealtimeNoteStore,
     private eventEmitter: EventEmitter2<NoteEventMap>,
   ) {
@@ -184,6 +188,14 @@ export class NoteService {
 
     const latestRevision = await this.revisionsService.getLatestRevision(noteId, transaction);
     return latestRevision.content;
+  }
+
+  async getNoteGraph(noteId: number, focusOn: string | null = null, depth = 1): Promise<CardGraphInterface> {
+    const content = await this.getNoteContent(noteId)
+    if (this.noteLinkService === undefined) {
+      throw new Error('NoteLinkService is not available')
+    }
+    return await this.noteLinkService.getGraphSnapshot(noteId, content, focusOn, depth)
   }
 
   /**

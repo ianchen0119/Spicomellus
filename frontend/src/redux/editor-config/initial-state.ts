@@ -13,5 +13,6 @@ export const initialState: EditorConfig = {
   spellCheck: true,
   lineWrapping: true,
   indentWithTabs: false,
-  indentSpaces: 2
+  indentSpaces: 2,
+  cardMode: false
 }

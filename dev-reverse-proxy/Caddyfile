@@ -8,6 +8,7 @@
 # Otherwise Caddy strips the required X-Forwarded-Proto and X-Forwarded-Host headers
 # This is a common scenario when exposing a local dev setup to someone else
 {
+    admin off
     servers {
         trusted_proxies static private_ranges
     }

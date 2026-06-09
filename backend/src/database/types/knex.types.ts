@@ -11,6 +11,7 @@ import {
   GroupUser,
   Identity,
   MediaUpload,
+  NoteLink,
   Note,
   NoteGroupPermission,
   NoteUserPermission,
@@ -24,6 +25,7 @@ import {
   TableGroupUser,
   TableIdentity,
   TableMediaUpload,
+  TableNoteLink,
   TableNote,
   TableNoteGroupPermission,
   TableNoteUserPermission,
@@ -33,6 +35,7 @@ import {
   TableUser,
   TableUserPinnedNote,
   TypeInsertGroup,
+  TypeInsertNoteLink,
   TypeInsertNote,
   TypeInsertUser,
   TypeUpdateAlias,
@@ -62,6 +65,7 @@ declare module 'knex/types/tables.js' {
       MediaUpload,
       TypeUpdateMediaUpload
     >;
+    [TableNoteLink]: KnexOriginal.CompositeTableType<NoteLink, TypeInsertNoteLink, TypeInsertNoteLink>;
     [TableNote]: KnexOriginal.CompositeTableType<Note, TypeInsertNote, TypeUpdateNote>;
     [TableNoteGroupPermission]: KnexOriginal.CompositeTableType<
       NoteGroupPermission,

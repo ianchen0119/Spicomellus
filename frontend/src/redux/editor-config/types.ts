@@ -12,4 +12,5 @@ export interface EditorConfig {
   lineWrapping: boolean
   indentWithTabs: boolean
   indentSpaces: number
+  cardMode: boolean
 }

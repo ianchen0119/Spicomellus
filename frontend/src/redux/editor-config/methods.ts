@@ -81,3 +81,8 @@ const saveToLocalStorage = (): void => {
     log.error('Failed to save editor config to local storage', error)
   }
 }
+
+export const setEditorCardMode = (cardMode: boolean): void => {
+  const action = editorConfigActionsCreator.setCardMode(cardMode)
+  store.dispatch(action)
+}

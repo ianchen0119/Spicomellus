@@ -4,57 +4,38 @@ SPDX-FileCopyrightText: 2021 The HedgeDoc developers (see AUTHORS file)
 SPDX-License-Identifier: CC-BY-SA-4.0
 -->
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/content/images/hedgedoc_logo_white.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/content/images/hedgedoc_logo_black.svg">
-    <img alt="Hedgedoc Logo" src="docs/content/images/hedgedoc_logo_white.svg">
-  </picture>
-</p>
+![](./banner.png)
 
+Spicomellus is a folk of HedgeDoc, built for an AI-native knowledge workflow.
 
-[![#HedgeDoc on matrix.org][matrix.org-image]][matrix.org-url]
-[![version][github-version-badge]][github-release-page]
-[![POEditor][poeditor-image]][poeditor-url]
-[![Mastodon][social-mastodon-image]][social-mastodon]
-![REUSE Compliance Check][reuse-workflow-badge]
-[![codecov][codecov-badge]][codecov-url]
+## Why Spicomellus
 
-HedgeDoc lets you create real-time collaborative markdown notes. 
+Recent AI research workflows increasingly treat Markdown as an intermediate format for machine reasoning, not just human writing.
 
-## Getting Started
+As described by Andrej Karpathy, a practical loop is emerging:
+
+1. Collect raw sources (papers, repos, articles, datasets, images).
+2. Let an LLM continuously compile them into a Markdown wiki.
+3. Use the same LLM to query, refine, lint, and expand that wiki.
+4. Feed outputs back into the knowledge base so exploration compounds over time.
+
+In this loop, AI-generated Markdown can be imported into a knowledge base and rendered into HTML for model-side consumption. As Anthropic's Thariq noted, this HTML layer is useful as machine-readable context for AI systems.
+
+But for humans, plain Markdown-to-HTML is often not the best interface for understanding reasoning structure. Spicomellus focuses on **graph cards** as a first-class view: relationships between concepts, notes, and AI input/output become visually traceable like a mind map.
+
+This gives teams and learners a faster way to:
+
+- understand how an AI answer is grounded,
+- inspect input/output chains and dependencies,
+- spot gaps or contradictions,
+- and make better decisions with less cognitive overhead.
+
+Spicomellus exists to bridge both worlds at once:
+
+- **AI-readable structure** (Markdown/HTML knowledge pipelines), and
+- **human-readable structure** (graph-card cognition).
+
 - ℹ️ Read all about HedgeDoc and the history of the project on [our website](https://hedgedoc.org)
-- 🧪 Try out HedgeDoc with the [demo instance][hedgedoc-demo]. Check out the [features page][hedgedoc-demo-features]!
-- 💽 Install HedgeDoc yourself using the [install guide](https://docs.hedgedoc.org/setup/getting-started/)
-- ❓ Questions? Join our [Matrix chat][matrix.org-url] or the [community forums][hedgedoc-community]
-- 💬 Stay up to date by subscribing to the [release feed][github-release-feed]
-
-
-## State of the project
-HedgeDoc 1.x is stable and used around the world, but the codebase has [grown over time](https://hedgedoc.org/history/),
-making it hard to add new features.  
-We are currently working on HedgeDoc 2, a complete rewrite of HedgeDoc. Please note the following:
-
-- This branch contains the latest development code and does not implement all features yet.
-  **If you are looking for the 1.x source code, have a look at the [master branch](https://github.com/hedgedoc/hedgedoc/tree/master).**
-- The 1.x release is maintenance-only. We do not accept feature requests or PRs for this release anymore and may choose
-  to close non-critical bug reports, if the bug will be non-existent in 2.0.
-- HedgeDoc 2 will be split in two components. The backend and the frontend. Both are present in this repository.
-
-## Development
-Information for setting up a local development environment can be found in the [developer documentation](https://docs.hedgedoc.dev/how-to/develop/setup/)
-
-## HedgeDoc 2 Alpha
-Curious about the new look and feel of HedgeDoc 2? We provide a demo of the alpha on [hedgedoc.dev](https://hedgedoc.dev).
-
-If you want to try it out on your own devices, visit the [HedgeDoc 2 docs](https://docs.hedgedoc.dev).
-But be aware that these may change over time.
-
-## Contributions
-
-We welcome contributions!  
-Have a look at our [contribution docs](CONTRIBUTING.md) to find out how you can help. If you want to contribute to
-HedgeDoc 2, please join our [development chat][matrix.org-dev-url].
 
 # License
 

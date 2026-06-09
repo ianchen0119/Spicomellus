@@ -6,11 +6,12 @@
 import { Module } from '@nestjs/common';
 
 import { AliasModule } from '../alias/alias.module';
+import { NoteLinkService } from './note-link.service';
 import { RevisionsService } from './revisions.service';
 
 @Module({
   imports: [AliasModule],
-  providers: [RevisionsService],
-  exports: [RevisionsService],
+  providers: [RevisionsService, NoteLinkService],
+  exports: [RevisionsService, NoteLinkService],
 })
 export class RevisionsModule {}

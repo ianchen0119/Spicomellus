@@ -21,7 +21,7 @@ import {
   TableUser,
   User,
 } from '@hedgedoc/database';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { Cron, Timeout } from '@nestjs/schedule';
 import { createPatch } from 'diff';
 import { Knex } from 'knex';
@@ -34,6 +34,7 @@ import { RevisionMetadataDto } from '../dtos/revision-metadata.dto';
 import { RevisionDto } from '../dtos/revision.dto';
 import { GenericDBError, NotInDBError } from '../errors/errors';
 import { ConsoleLoggerService } from '../logger/console-logger.service';
+import { NoteLinkService } from './note-link.service';
 import {
   dateTimeToDB,
   dateTimeToISOString,
@@ -55,6 +56,8 @@ export class RevisionsService {
   constructor(
     private readonly logger: ConsoleLoggerService,
     private readonly aliasService: AliasService,
+    @Optional()
+    private readonly noteLinkService: NoteLinkService,
     @InjectConnection()
     private readonly knex: Knex,
     @Inject(noteConfiguration.KEY) private noteConfig: NoteConfig,
@@ -406,6 +409,7 @@ export class RevisionsService {
         })),
       );
     }
+
     this.logger.debug(`created revision '${newUuid}' for note '${noteId}'`, 'innerCreateRevision');
   }
 

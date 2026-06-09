@@ -5,6 +5,7 @@
  */
 import { AliasesSidebarEntry } from './specific-sidebar-entries/aliases-sidebar-entry/aliases-sidebar-entry'
 import { DeleteNoteSidebarEntry } from './specific-sidebar-entries/delete-note-sidebar-entry/delete-note-sidebar-entry'
+import { CardGraphSidebarMenu } from './specific-sidebar-entries/card-graph-sidebar-menu/card-graph-sidebar-menu'
 import { ExportSidebarMenu } from './specific-sidebar-entries/export-sidebar-menu/export-sidebar-menu'
 import { ImportMenuSidebarMenu } from './specific-sidebar-entries/import-menu-sidebar-menu'
 import { MediaBrowserSidebarMenu } from './specific-sidebar-entries/media-browser-sidebar-menu/media-browser-sidebar-menu'
@@ -52,6 +53,11 @@ export const Sidebar: React.FC = () => {
         />
         <NoteInfoSidebarMenu
           menuId={DocumentSidebarMenuSelection.NOTE_INFO}
+          selectedMenuId={selectedMenu}
+          onClick={toggleValue}
+        />
+        <CardGraphSidebarMenu
+          menuId={DocumentSidebarMenuSelection.CARD_GRAPH}
           selectedMenuId={selectedMenu}
           onClick={toggleValue}
         />

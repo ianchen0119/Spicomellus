@@ -11,10 +11,12 @@ import { useComponentsFromAppExtensions } from './editor-pane/hooks/use-componen
 import { useNoteAndAppTitle } from './head-meta-properties/use-note-and-app-title'
 import { useScrollState } from './hooks/use-scroll-state'
 import { useSetScrollSource } from './hooks/use-set-scroll-source'
+import { NoteGraphView } from './note-graph-view/note-graph-view'
 import { RendererPane } from './renderer-pane/renderer-pane'
 import { Sidebar } from './sidebar/sidebar'
 import { Splitter } from './splitter/splitter'
 import { PrintWarning } from './print-warning/print-warning'
+import { useApplicationState } from '../../hooks/common/use-application-state'
 import React, { useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import './print.scss'
@@ -32,6 +34,7 @@ export const EditorPageContent: React.FC = () => {
   useTranslation()
   usePrintKeyboardShortcut()
 
+  const cardMode = useApplicationState((state) => state.editorConfig.cardMode)
   const scrollSource = useRef<ScrollSource>(ScrollSource.EDITOR)
   const [editorScrollState, onMarkdownRendererScroll] = useScrollState(scrollSource, ScrollSource.EDITOR)
   const [rendererScrollState, onEditorScroll] = useScrollState(scrollSource, ScrollSource.RENDERER)
@@ -71,11 +74,17 @@ export const EditorPageContent: React.FC = () => {
         <CommunicatorImageLightbox />
         <PrintWarning />
         <div className={'flex-fill d-flex h-100 w-100 overflow-hidden flex-row'}>
-          <Splitter
-            left={leftPane}
-            right={rightPane}
-            additionalContainerClassName={'overflow-hidden position-relative'}
-          />
+          {cardMode ? (
+            <div className={'flex-fill h-100 overflow-hidden'}>
+              <NoteGraphView />
+            </div>
+          ) : (
+            <Splitter
+              left={leftPane}
+              right={rightPane}
+              additionalContainerClassName={'overflow-hidden position-relative'}
+            />
+          )}
           <Sidebar />
         </div>
       </ExtensionEventEmitterProvider>

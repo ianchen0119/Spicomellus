@@ -38,6 +38,9 @@ const editorConfigSlice = createSlice({
     },
     setEditorConfig: (state, action: PayloadAction<EditorConfig>) => {
       return action.payload
+    },
+    setCardMode: (state, action: PayloadAction<EditorConfig['cardMode']>) => {
+      state.cardMode = action.payload
     }
   }
 })

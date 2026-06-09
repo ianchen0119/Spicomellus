@@ -7,6 +7,7 @@ import { LegacySequenceDiagramAppExtension } from '../external-lib-app-extension
 import { AlertAppExtension } from './alert/alert-app-extension'
 import { BasicMarkdownSyntaxAppExtension } from './basic-markdown-syntax/basic-markdown-syntax-app-extension'
 import { BlockquoteAppExtension } from './blockquote/blockquote-app-extension'
+import { CardFenceAppExtension } from './card-fence/card-fence-app-extension'
 import { BootstrapIconAppExtension } from './bootstrap-icons/bootstrap-icon-app-extension'
 import { CsvTableAppExtension } from './csv/csv-table-app-extension'
 import { EmojiAppExtension } from './emoji/emoji-app-extension'
@@ -28,6 +29,7 @@ export const essentialAppExtensions = [
   new AlertAppExtension(),
   new BasicMarkdownSyntaxAppExtension(),
   new BlockquoteAppExtension(),
+  new CardFenceAppExtension(),
   new BootstrapIconAppExtension(),
   new CsvTableAppExtension(),
   new EmojiAppExtension(),
