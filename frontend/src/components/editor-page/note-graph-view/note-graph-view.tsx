@@ -522,6 +522,13 @@ export const NoteGraphView: React.FC = () => {
           const { outgoing, incoming } = await fetchGraphCached(noteAlias)
           addLinkBatch(noteAlias, outgoing, incoming)
         } else {
+          // Directed forward traversal: starting from the current note, follow
+          // only the *direction* of the links. From any reached node we expand to:
+          //  - the targets of its outgoing links (uni or bid), and
+          //  - the sources of its incoming bidirectional links (still traversable).
+          // Incoming *uni* links (other → node) point INTO the node, so they are
+          // neither shown nor traversed. This keeps the graph to "notes the current
+          // note points to, and the notes those notes point to, …".
           let frontier = [noteAlias]
           visited.add(noteAlias)
           while (frontier.length > 0) {
@@ -538,13 +545,22 @@ export const NoteGraphView: React.FC = () => {
             )
             for (const result of results) {
               if (!result) continue
-              addLinkBatch(result.alias, result.outgoing, result.incoming)
-              for (const link of [...result.outgoing, ...result.incoming]) {
-                for (const alias of [link.source_card_key, link.target_card_key]) {
-                  if (!visited.has(alias)) {
-                    visited.add(alias)
-                    frontier.push(alias)
-                  }
+              // Outgoing links always point away from this node → follow them.
+              // Incoming links are only followed when bidirectional.
+              const incomingBid = result.incoming.filter((link) => link.edge_type === 'bid')
+              addLinkBatch(result.alias, result.outgoing, incomingBid)
+              for (const link of result.outgoing) {
+                const next = link.source_card_key === result.alias ? link.target_card_key : link.source_card_key
+                if (!visited.has(next)) {
+                  visited.add(next)
+                  frontier.push(next)
+                }
+              }
+              for (const link of incomingBid) {
+                const next = link.source_card_key === result.alias ? link.target_card_key : link.source_card_key
+                if (!visited.has(next)) {
+                  visited.add(next)
+                  frontier.push(next)
                 }
               }
             }
