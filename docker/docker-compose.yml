@@ -4,6 +4,8 @@
 services:
   backend:
     image: ghcr.io/ianchen0119/spicomellus/backend:develop
+    depends_on:
+    - db
     volumes:
       - ./.env:/usr/src/app/backend/.env
       - hedgedoc_uploads:/usr/src/app/backend/uploads
@@ -20,6 +22,8 @@ services:
       POSTGRES_USER: "${HD_DATABASE_USERNAME}"
       POSTGRES_PASSWORD: "${HD_DATABASE_PASSWORD}"
       POSTGRES_DB: "${HD_DATABASE_NAME}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   proxy:
     image: caddy:latest
@@ -37,3 +41,4 @@ services:
 volumes:
   hedgedoc_uploads:
   caddy_data:
+  postgres_data:

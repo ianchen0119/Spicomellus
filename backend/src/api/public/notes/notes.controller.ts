@@ -3,9 +3,9 @@
  *
  * SPDX-License-Identifier: AGPL-3.0-only
  */
+import { BadRequestException } from '@nestjs/common';
 import { PermissionLevel } from '@hedgedoc/commons';
 import {
-  BadRequestException,
   MediaUploadSchema,
   NoteMetadataSchema,
   NotePermissionsSchema,
@@ -425,7 +425,7 @@ export class NotesController {
     const backlinks = await this.noteLinkService.getCrossNoteBacklinks(noteAlias);
     const aliases = await Promise.all(
       backlinks.map(async (backlink) => {
-        return await this.aliasService.getPrimaryAliasByNoteId(backlink.noteId);
+        return await this.aliasService.getPrimaryAliasByNoteId(backlink.note_id);
       }),
     );
     return Array.from(new Set(aliases));
