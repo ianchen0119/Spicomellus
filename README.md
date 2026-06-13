@@ -6,7 +6,7 @@ SPDX-License-Identifier: CC-BY-SA-4.0
 
 ![](./banner.png)
 
-Spicomellus is a folk of HedgeDoc, built for an AI-native knowledge workflow.
+Spicomellus is a fork of HedgeDoc, built for an AI-native knowledge workflow.
 
 ## Why Spicomellus
 
