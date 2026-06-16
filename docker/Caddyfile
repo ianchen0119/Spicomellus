@@ -13,6 +13,9 @@
 	}
 
 	reverse_proxy /realtime http://backend:3000
+	reverse_proxy /.well-known/oauth-protected-resource http://mcp:3002
+	reverse_proxy /.well-known/oauth-authorization-server http://backend:3000
+	reverse_proxy /mcp* http://mcp:3002
 	reverse_proxy /api/* http://backend:3000
 	reverse_proxy /public/* http://backend:3000
 	reverse_proxy /uploads/* http://backend:3000

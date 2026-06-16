@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        component: [ 'backend', 'frontend' ]
+        component: [ 'backend', 'frontend', 'mcp' ]
     steps:
       - uses: actions/checkout@v6.0.2
 

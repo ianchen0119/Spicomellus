@@ -7,11 +7,12 @@ import { Module } from '@nestjs/common';
 
 import { ApiTokenGuard } from '../api/utils/guards/api-token.guard';
 import { MockApiTokenGuard } from '../api/utils/guards/mock-api-token.guard';
+import { OAuthModule } from '../oauth/oauth.module';
 import { UsersModule } from '../users/users.module';
 import { ApiTokenService } from './api-token.service';
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, OAuthModule],
   providers: [ApiTokenService, ApiTokenGuard, MockApiTokenGuard],
   exports: [ApiTokenService, ApiTokenGuard],
 })

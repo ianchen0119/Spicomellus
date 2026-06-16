@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js"
+    "start": "node web-server.js"
+  },
+  "dependencies": {
+    "express": "5.1.0"
   }
 }

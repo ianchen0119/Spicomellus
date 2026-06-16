@@ -5,10 +5,14 @@
  */
 import { AuthProviderType } from '@hedgedoc/commons';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { ConfigType } from '@nestjs/config';
+import { Inject } from '@nestjs/common';
 
 import { ApiTokenService } from '../../../api-token/api-token.service';
+import appConfig from '../../../config/app.config';
 import { NotInDBError, TokenNotValidError } from '../../../errors/errors';
 import { ConsoleLoggerService } from '../../../logger/console-logger.service';
+import { OAuthJwtService } from '../../../oauth/oauth-jwt.service';
 import { CompleteRequest } from '../request.type';
 
 @Injectable()
@@ -16,6 +20,9 @@ export class ApiTokenGuard implements CanActivate {
   constructor(
     private readonly logger: ConsoleLoggerService,
     private readonly apiTokenService: ApiTokenService,
+    private readonly oauthJwtService: OAuthJwtService,
+    @Inject(appConfig.KEY)
+    private readonly appCfg: ConfigType<typeof appConfig>,
   ) {
     this.logger.setContext(ApiTokenGuard.name);
   }
@@ -27,11 +34,22 @@ export class ApiTokenGuard implements CanActivate {
       return false;
     }
     const [method, token] = authHeader.trim().split(' ');
-    if (method !== 'Bearer') {
+    if (method !== 'Bearer' || !token) {
       return false;
     }
+    const bearer = token.trim();
     try {
-      request.userId = await this.apiTokenService.getUserIdForToken(token.trim());
+      if (bearer.startsWith('hd2.')) {
+        request.userId = await this.apiTokenService.getUserIdForToken(bearer);
+        request.authProviderType = AuthProviderType.TOKEN;
+        return true;
+      }
+
+      const payload = await this.oauthJwtService.verifyAccessToken(
+        bearer,
+        `${this.appCfg.baseUrl}/mcp`,
+      );
+      request.userId = Number(payload.sub);
       request.authProviderType = AuthProviderType.TOKEN;
       return true;
     } catch (error) {

@@ -17,6 +17,8 @@ import { ApiTokenModule } from './api-token/api-token.module';
 import { CsrfGuard } from './api/private/csrf/csrf.guard';
 import { PrivateApiModule } from './api/private/private-api.module';
 import { PublicApiModule } from './api/public/public-api.module';
+import { OAuthApiModule } from './api/oauth/oauth-api.module';
+import { OAuthWellKnownController } from './api/oauth/oauth-well-known.controller';
 import { AuthModule } from './auth/auth.module';
 import appConfig, { AppConfig } from './config/app.config';
 import authConfig from './config/auth.config';
@@ -27,6 +29,7 @@ import externalConfig from './config/external-services.config';
 import { Loglevel } from './config/loglevel.enum';
 import mediaConfig from './config/media.config';
 import noteConfig from './config/note.config';
+import oauthConfig from './config/oauth.config';
 import securityConfig from './config/security.config';
 import { eventModuleConfig } from './events';
 import { ExploreModule } from './explore/explore.module';
@@ -48,6 +51,7 @@ import { isDevMode } from './utils/dev-mode';
 
 export const PUBLIC_API_PREFIX = '/api/v2';
 export const PRIVATE_API_PREFIX = '/api/private';
+export const OAUTH_API_PREFIX = '/api/oauth';
 
 const routes: Routes = [
   {
@@ -61,6 +65,10 @@ const routes: Routes = [
   {
     path: '/media',
     module: MediaRedirectModule,
+  },
+  {
+    path: OAUTH_API_PREFIX,
+    module: OAuthApiModule,
   },
 ];
 
@@ -100,6 +108,7 @@ const routes: Routes = [
         cspConfig,
         databaseConfig,
         authConfig,
+        oauthConfig,
         customizationConfig,
         externalConfig,
         securityConfig,
@@ -112,6 +121,7 @@ const routes: Routes = [
     UsersModule,
     RevisionsModule,
     PublicApiModule,
+    OAuthApiModule,
     PrivateApiModule,
     MonitoringModule,
     PermissionsModule,
@@ -127,7 +137,7 @@ const routes: Routes = [
     MessageModule,
     ExploreModule,
   ],
-  controllers: [],
+  controllers: [OAuthWellKnownController],
   providers: [
     FrontendConfigService,
     {
@@ -144,4 +154,8 @@ const routes: Routes = [
     },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    // Root-level controllers are injected here to ensure they're registered
+  }
+}

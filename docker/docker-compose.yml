@@ -3,7 +3,9 @@
 ---
 services:
   backend:
-    image: ghcr.io/ianchen0119/spicomellus/backend:develop
+    build:
+      context: ..
+      dockerfile: backend/docker/Dockerfile
     depends_on:
     - db
     volumes:
@@ -24,6 +26,15 @@ services:
       POSTGRES_DB: "${HD_DATABASE_NAME}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  mcp:
+    image: ghcr.io/ianchen0119/spicomellus/mcp:develop
+    depends_on:
+      - backend
+    environment:
+      HEDGEDOC_BASE_URL: "http://backend:3000"
+      HEDGEDOC_PUBLIC_BASE_URL: "${HD_BASE_URL}"
+      MCP_PORT: "3002"
 
   proxy:
     image: caddy:latest

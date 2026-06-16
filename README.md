@@ -45,6 +45,7 @@ Use Docker Compose to run Spicomellus quickly with backend, frontend, PostgreSQL
 cat > docker/.env <<'EOF'
 HD_BASE_URL=http://127.0.0.1:8081
 HD_AUTH_SESSION_SECRET=replace-with-at-least-32-characters
+HD_OAUTH_JWT_SECRET=replace-with-at-least-32-characters
 HD_DATABASE_TYPE=postgres
 HD_DATABASE_HOST=db
 HD_DATABASE_PORT=5432
@@ -77,7 +78,7 @@ docker compose -f docker/docker-compose.yml --env-file docker/.env down
 
 ## MCP Server
 
-This repository includes a local MCP server in `mcp/` for agent workflows.
+This repository includes a remote MCP web service in `mcp/` for agent workflows.
 
 ### Installation
 
@@ -87,52 +88,49 @@ This repository includes a local MCP server in `mcp/` for agent workflows.
 yarn install
 ```
 
-2. Add a server entry to your VS Code MCP config (`~/.vscode-server/data/User/mcp.json` on remote Linux):
+2. Start the stack (includes backend, frontend, db, proxy, and mcp):
+
+```bash
+docker compose -f docker/docker-compose.yml --env-file docker/.env up -d
+```
+
+3. Add a server entry to your VS Code MCP config (`~/.vscode-server/data/User/mcp.json` on remote Linux):
 
 ```jsonc
 {
 	"servers": {
 		"Spicomellus": {
-            "type": "stdio",
-            "command": "/usr/bin/node",
-            "args": [
-                "/home/ianchen0119/Spicomellus/mcp/server.js"
-            ],
-            "env": {
-                "HEDGEDOC_USERNAME": "agent",
-                "HEDGEDOC_PASSWORD": "agentCopilot",
-                "HEDGEDOC_BASE_URL": "http://127.0.0.1:8081",
-                "HEDGEDOC_MCP_DEBUG": "1",
-                "HEDGEDOC_MCP_OUTPUT_MODE": "ndjson"
-            }
+			"type": "http",
+			"url": "http://127.0.0.1:8081/mcp"
 		}
 	}
 }
 ```
 
-You can replace `HEDGEDOC_API_TOKEN` with `HEDGEDOC_USERNAME` and `HEDGEDOC_PASSWORD` for local auto-bootstrap.
+4. Restart MCP clients (or VS Code), then complete OAuth login in the browser when prompted.
 
-4. Restart MCP clients (or VS Code) and verify the server can be discovered.
+5. Verify discovery by checking MCP tools are listed.
 
 ### Environment
 
-- `HEDGEDOC_BASE_URL`: base URL of your Spicomellus instance, for example `http://localhost:3000`
-- `HEDGEDOC_API_TOKEN`: a valid API token for the user the agent should act as
+- `HD_OAUTH_JWT_SECRET`: shared JWT signing key used by backend OAuth tokens
+- `HD_BASE_URL`: public base URL for browser redirects and MCP endpoint discovery
 
-Optional (automatic token bootstrap for local auth):
+MCP container environment (configured in `docker/docker-compose.yml`):
 
-- `HEDGEDOC_USERNAME`: local username
-- `HEDGEDOC_PASSWORD`: local password
-- `HEDGEDOC_BOOTSTRAP_TOKEN_LABEL`: label for the generated token (default: `spicomellus-mcp-auto`)
+- `HEDGEDOC_BASE_URL`: internal backend URL (default in compose: `http://backend:3000`)
+- `HEDGEDOC_PUBLIC_BASE_URL`: public URL (default from `HD_BASE_URL`)
+- `MCP_PORT`: mcp web service port (default: `3002`)
 
-If `HEDGEDOC_API_TOKEN` is missing and username/password are provided, the MCP server will:
+OAuth endpoints exposed by Spicomellus:
 
-1. create a private session,
-2. request CSRF token,
-3. create an API token via private API,
-4. use that token for MCP tools.
+- `http://127.0.0.1:8081/mcp`
+- `http://127.0.0.1:8081/.well-known/oauth-protected-resource`
+- `http://127.0.0.1:8081/.well-known/oauth-authorization-server`
 
 ### Run
+
+For local non-docker development of MCP web service only:
 
 ```bash
 yarn workspace @hedgedoc/spicomellus-mcp start
